@@ -314,13 +314,3 @@
         @apply inline-flex h-9 w-9 items-center justify-center rounded-full border border-forest-200 text-forest-700 transition-colors hover:border-forest-500 hover:text-forest-900;
     }
 }
-
-@layer components {
-    .public-input {
-        @apply block w-full rounded-lg border border-white/15 bg-forest-950/50 px-3 py-2 text-sm text-white outline-none transition-colors placeholder:text-cream-100/30 focus:border-gold-400/70;
-    }
-}
-
-.public-input option {
-    color: var(--color-forest-900);
-}

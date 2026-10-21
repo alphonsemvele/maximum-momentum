@@ -14,13 +14,11 @@ use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DeployController;
 use App\Http\Controllers\DocumentController;
-use App\Http\Controllers\DonationController;
 use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('/campagnes/{slug}', [PageController::class, 'campaign'])->name('campaigns.show');
-Route::post('/campagnes/{slug}/dons', [DonationController::class, 'store'])->middleware('throttle:6,1')->name('campaigns.donate');
 Route::get('/documents/{document}', [DocumentController::class, 'show'])->name('documents.show');
 Route::post('/_deploy', DeployController::class)->middleware('throttle:5,1')->name('deploy');
 

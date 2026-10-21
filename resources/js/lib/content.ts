@@ -401,40 +401,22 @@ export const campaignsCopy = {
     from: { fr: 'Depuis le', en: 'Since' } satisfies Bi,
     momoTitle: { fr: 'Donner par Mobile Money', en: 'Give by Mobile Money' } satisfies Bi,
     momoNote: {
-        fr: 'Indiquez le nom de la campagne dans le motif du transfert, puis prévenez-nous sur WhatsApp pour recevoir le suivi de votre don.',
-        en: 'Write the campaign name in the transfer reference, then message us on WhatsApp to receive a follow-up on your gift.',
+        fr: 'Tous les dons passent par WhatsApp : écrivez-nous, nous vous guidons, puis envoyez votre transfert à l’un de ces numéros en indiquant le nom de la campagne.',
+        en: 'All donations go through WhatsApp: message us and we will guide you, then send your transfer to one of these numbers with the campaign name as reference.',
     } satisfies Bi,
-    momoDone: { fr: 'Prévenez-nous sur WhatsApp après votre transfert', en: 'Let us know on WhatsApp once you have sent it' } satisfies Bi,
     gallery: { fr: 'En images', en: 'In pictures' } satisfies Bi,
     documents: { fr: 'Documents', en: 'Documents' } satisfies Bi,
     donors: { fr: 'Ils ont soutenu cette campagne', en: 'They supported this campaign' } satisfies Bi,
     donorsCount: { fr: 'donateur(s)', en: 'donor(s)' } satisfies Bi,
+    donateCta: { fr: 'Faire un don via WhatsApp', en: 'Donate via WhatsApp' } satisfies Bi,
     declare: {
         title: { fr: 'Vous avez fait un don ?', en: 'Have you made a donation?' } satisfies Bi,
         intro: {
-            fr: 'Déclarez-le ici : nous vérifions la réception puis votre don est ajouté au total de la campagne.',
-            en: 'Declare it here: we check we have received it, then your gift is added to the campaign total.',
+            fr: 'Envoyez-nous la capture de votre transfert sur WhatsApp : nous confirmons la réception et votre don est ajouté au total de la campagne.',
+            en: 'Send us the screenshot of your transfer on WhatsApp: we confirm we received it and your gift is added to the campaign total.',
         } satisfies Bi,
-        name: { fr: 'Votre nom', en: 'Your name' } satisfies Bi,
-        phone: { fr: 'Téléphone utilisé pour le transfert', en: 'Phone used for the transfer' } satisfies Bi,
-        email: { fr: 'E-mail (facultatif)', en: 'Email (optional)' } satisfies Bi,
-        amount: { fr: 'Montant envoyé (FCFA)', en: 'Amount sent (FCFA)' } satisfies Bi,
-        method: { fr: 'Moyen de paiement', en: 'Payment method' } satisfies Bi,
-        reference: { fr: 'Référence de la transaction (facultatif)', en: 'Transaction reference (optional)' } satisfies Bi,
-        message: { fr: 'Un mot pour l’équipe (facultatif)', en: 'A note for the team (optional)' } satisfies Bi,
-        anonymous: { fr: 'Ne pas afficher mon nom sur le site', en: 'Do not show my name on the site' } satisfies Bi,
-        submit: { fr: 'Déclarer mon don', en: 'Declare my donation' } satisfies Bi,
-        thanks: {
-            fr: 'Merci ! Votre don a bien été déclaré. Il apparaîtra dans le total dès que nous aurons confirmé sa réception.',
-            en: 'Thank you! Your donation has been declared. It will appear in the total as soon as we confirm we have received it.',
-        } satisfies Bi,
+        cta: { fr: 'Envoyer la preuve sur WhatsApp', en: 'Send the proof on WhatsApp' } satisfies Bi,
     },
-    methods: {
-        mtn: { fr: 'MTN Mobile Money', en: 'MTN Mobile Money' },
-        orange: { fr: 'Orange Money', en: 'Orange Money' },
-        virement: { fr: 'Virement bancaire', en: 'Bank transfer' },
-        autre: { fr: 'Autre', en: 'Other' },
-    } satisfies Record<string, Bi>,
 };
 
 /* -------------------------------- gallery ------------------------------ */

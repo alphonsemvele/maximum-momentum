@@ -39,10 +39,10 @@ export default function DonationsTab({ campaignId, donations, options }: { campa
                 <div>
                     <p className="font-semibold">Comment un don est crédité</p>
                     <p className="mt-1 text-forest-800/75">
-                        Le donateur envoie l’argent par Mobile Money puis déclare son don sur la page de la campagne : il apparaît ici
-                        <strong> en attente</strong>. Vérifiez la réception sur le téléphone MTN / Orange, puis cliquez sur
-                        <strong> Confirmer</strong> : le montant est alors ajouté au total collecté affiché sur le site. Un don reçu en
-                        main propre ou par virement peut être saisi directement avec « Enregistrer un don ».
+                        Tous les dons passent par WhatsApp : le donateur envoie l’argent par Mobile Money puis la capture de son transfert
+                        sur WhatsApp. Vérifiez la réception sur le téléphone MTN / Orange, puis cliquez sur « Enregistrer un don » avec
+                        <strong> Montant reçu</strong> coché : il est aussitôt ajouté au total collecté affiché sur le site. Décochez-le pour
+                        garder un don <strong>en attente</strong> le temps de la vérification, puis cliquez sur <strong>Confirmer</strong>.
                     </p>
                 </div>
             </div>

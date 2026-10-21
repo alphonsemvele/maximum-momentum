@@ -2,7 +2,6 @@ import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, ArrowUpRight, CalendarDays, Download, FileText, Heart, MapPin, MessageCircle, Users } from 'lucide-react';
 import CampaignCard from '@/components/CampaignCard';
 import CampaignGallery from '@/components/CampaignGallery';
-import DonationDeclareForm from '@/components/DonationDeclareForm';
 import CampaignProgress from '@/components/CampaignProgress';
 import Header from '@/components/Header';
 import MomoCard from '@/components/MomoCard';
@@ -26,6 +25,11 @@ export default function CampaignPage({ campaign, others }: { campaign: CampaignD
     const supportMessage = t({
         fr: `Bonjour Maximum Momentum in Action, je souhaite soutenir la campagne « ${title} ».`,
         en: `Hello Maximum Momentum in Action, I would like to support the “${title}” campaign.`,
+    });
+
+    const donatedMessage = t({
+        fr: `Bonjour Maximum Momentum in Action, je viens de faire un don pour la campagne « ${title} ». Voici la capture de mon transfert :`,
+        en: `Hello Maximum Momentum in Action, I have just made a donation to the “${title}” campaign. Here is the screenshot of my transfer:`,
     });
 
     return (
@@ -217,12 +221,22 @@ export default function CampaignPage({ campaign, others }: { campaign: CampaignD
                                     className="group mt-7 inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-gold-400 px-6 py-3.5 text-sm font-semibold text-forest-950 transition-colors hover:bg-gold-300"
                                 >
                                     <MessageCircle className="h-4 w-4" />
-                                    {t(campaignsCopy.momoDone)}
+                                    {t(campaignsCopy.donateCta)}
                                     <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                                 </a>
 
                                 <div className="mt-8 border-t border-white/10 pt-7">
-                                    <DonationDeclareForm slug={campaign.slug} />
+                                    <h3 className="font-display text-lg font-semibold text-white">{t(campaignsCopy.declare.title)}</h3>
+                                    <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-cream-100/60">{t(campaignsCopy.declare.intro)}</p>
+                                    <a
+                                        href={org.whatsapp(donatedMessage)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-gold-400/60 px-6 py-3 text-sm font-semibold text-gold-200 transition-colors hover:bg-gold-400 hover:text-forest-950"
+                                    >
+                                        <MessageCircle className="h-4 w-4" />
+                                        {t(campaignsCopy.declare.cta)}
+                                    </a>
                                 </div>
                             </aside>
                         </Reveal>
