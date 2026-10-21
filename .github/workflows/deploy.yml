@@ -28,6 +28,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history: the deploy script diffs against the last deployed commit.
+          fetch-depth: 0
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -53,37 +56,14 @@ jobs:
         run: npm run build
 
       - name: Upload by FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          server-dir: ${{ secrets.FTP_SERVER_DIR }}
-          # Only changed files are sent after the first run (state kept on the server).
-          exclude: |
-            **/.git*
-            **/.git*/**
-            .github/**
-            node_modules/**
-            resources/js/**
-            resources/css/**
-            tests/**
-            .env
-            .env.*
-            database/database.sqlite
-            storage/**
-            bootstrap/cache/*.php
-            public/storage
-            public/hot
-            public/images/WhatsApp*
-            public/images/WhatsApp*/**
-            *.md
-            package.json
-            package-lock.json
-            tsconfig.json
-            vite.config.ts
-            phpunit.xml
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
+        run: |
+          sudo apt-get update -qq > /dev/null && sudo apt-get install -y -qq lftp > /dev/null
+          scripts/deploy-ftp.sh
 
       # Cached config/routes left on the server by an older release would hide
       # the new routes (including /_deploy itself), so drop them first.
@@ -94,7 +74,6 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
         run: |
-          sudo apt-get install -y -qq lftp > /dev/null
           lftp -u "$FTP_USERNAME,$FTP_PASSWORD" "ftp://$FTP_SERVER" -e "
             set ftp:ssl-force true; set ftp:ssl-protect-data true;
             cd \"${FTP_SERVER_DIR}bootstrap/cache\";
