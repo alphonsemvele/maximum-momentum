@@ -1,0 +1,112 @@
+name: Deploy
+
+# Builds the app and uploads it by FTP to maximum.tasks-manage.com, then calls
+# the /_deploy hook so migrations and caches run on the server.
+#
+# Repository secrets (Settings → Secrets and variables → Actions):
+#   FTP_SERVER      FTP host of the hosting account
+#   FTP_USERNAME    e.g. momentum@tasks-manage.com
+#   FTP_PASSWORD
+#   FTP_SERVER_DIR  folder of the app, relative to the FTP account root, ending with "/" (e.g. maximum-momentum/)
+#   DEPLOY_TOKEN    same value as DEPLOY_TOKEN in the server's .env
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://maximum.tasks-manage.com
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, intl, pdo_sqlite, pdo_mysql, fileinfo, gd
+          coverage: none
+
+      - name: Install PHP dependencies
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install JS dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Build assets
+        run: npm run build
+
+      - name: Upload by FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          # Only changed files are sent after the first run (state kept on the server).
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            node_modules/**
+            resources/js/**
+            resources/css/**
+            tests/**
+            .env
+            .env.*
+            database/database.sqlite
+            storage/**
+            bootstrap/cache/*.php
+            public/storage
+            public/hot
+            public/images/WhatsApp*
+            public/images/WhatsApp*/**
+            *.md
+            package.json
+            package-lock.json
+            tsconfig.json
+            vite.config.ts
+            phpunit.xml
+
+      # Cached config/routes left on the server by an older release would hide
+      # the new routes (including /_deploy itself), so drop them first.
+      - name: Remove stale Laravel caches
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
+        run: |
+          sudo apt-get install -y -qq lftp > /dev/null
+          lftp -u "$FTP_USERNAME,$FTP_PASSWORD" "ftp://$FTP_SERVER" -e "
+            set ftp:ssl-force true; set ftp:ssl-protect-data true;
+            cd \"${FTP_SERVER_DIR}bootstrap/cache\";
+            rm -f config.php routes-v7.php events.php;
+            bye"
+
+      - name: Run migrations and rebuild caches
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          response=$(curl --silent --show-error --fail-with-body --max-time 120 \
+            -X POST -H "X-Deploy-Token: $DEPLOY_TOKEN" -H "Accept: application/json" \
+            https://maximum.tasks-manage.com/_deploy)
+          echo "$response"
+          echo "$response" | grep -q '"ok":true'

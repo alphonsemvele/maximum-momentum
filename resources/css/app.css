@@ -1,0 +1,326 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------
+   Maximum Momentum in Action — design tokens
+   Palette derived from the brand assets: deep forest green + gold
+   (Pads & Pages poster), magenta (roll-up banner), warm cream paper.
+------------------------------------------------------------------- */
+@theme {
+    --font-display: 'Fraunces', ui-serif, Georgia, serif;
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+    /* Forest — primary brand green */
+    --color-forest-50: #f0f7f3;
+    --color-forest-100: #d9ece1;
+    --color-forest-200: #b4d9c6;
+    --color-forest-300: #82bda3;
+    --color-forest-400: #4f9b7c;
+    --color-forest-500: #2f7d5f;
+    --color-forest-600: #1f6349;
+    --color-forest-700: #17503c;
+    --color-forest-800: #103d2e;
+    --color-forest-900: #0b2e23;
+    --color-forest-950: #061b15;
+
+    /* Gold — the momentum arrow */
+    --color-gold-50: #fffaeb;
+    --color-gold-100: #fdf0c8;
+    --color-gold-200: #fbdf8c;
+    --color-gold-300: #f8c94f;
+    --color-gold-400: #f5b920;
+    --color-gold-500: #e8a317;
+    --color-gold-600: #c07d0e;
+    --color-gold-700: #99590f;
+    --color-gold-800: #7d4614;
+    --color-gold-900: #6a3a15;
+
+    /* Rose — menstrual dignity strand */
+    --color-rose-brand-50: #fdf2f6;
+    --color-rose-brand-100: #fce7ef;
+    --color-rose-brand-200: #fbcfe1;
+    --color-rose-brand-300: #f8a8c8;
+    --color-rose-brand-400: #f272a5;
+    --color-rose-brand-500: #e34585;
+    --color-rose-brand-600: #cf2467;
+    --color-rose-brand-700: #b01551;
+    --color-rose-brand-800: #921545;
+    --color-rose-brand-900: #7b163d;
+
+    /* Cream — paper */
+    --color-cream-50: #fdfbf6;
+    --color-cream-100: #faf6ec;
+    --color-cream-200: #f4ecd9;
+    --color-cream-300: #ebdfc2;
+    --color-cream-400: #dcc9a0;
+
+    --shadow-lift: 0 24px 60px -18px rgb(6 27 21 / 0.35);
+    --shadow-glow: 0 0 0 1px rgb(245 185 32 / 0.25), 0 20px 50px -20px rgb(245 185 32 / 0.35);
+
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
+
+    body {
+        background-color: var(--color-cream-50);
+        color: var(--color-forest-900);
+        font-family: var(--font-sans);
+        overflow-x: hidden;
+    }
+
+    ::selection {
+        background-color: var(--color-gold-300);
+        color: var(--color-forest-950);
+    }
+
+    /* section anchors clear the fixed header */
+    section[id] {
+        scroll-margin-top: 5.5rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.001ms !important;
+            animation-delay: 0.001ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.001ms !important;
+            transition-delay: 0.001ms !important;
+        }
+    }
+}
+
+@layer components {
+    /* Editorial eyebrow label used above every section title */
+    .eyebrow {
+        @apply inline-flex items-center gap-2.5 text-[0.6875rem] font-semibold uppercase tracking-[0.22em];
+    }
+
+    .eyebrow::before {
+        content: '';
+        @apply h-px w-8 bg-current opacity-50;
+    }
+
+    /* Fine dotted paper texture for cream sections */
+    .paper-grain {
+        background-image: radial-gradient(circle at 1px 1px, rgb(16 61 46 / 0.055) 1px, transparent 0);
+        background-size: 22px 22px;
+    }
+
+    .glass-dark {
+        background-color: rgb(6 27 21 / 0.55);
+        backdrop-filter: blur(18px) saturate(140%);
+        -webkit-backdrop-filter: blur(18px) saturate(140%);
+    }
+}
+
+@layer utilities {
+    .text-balance {
+        text-wrap: balance;
+    }
+
+    .text-pretty {
+        text-wrap: pretty;
+    }
+
+    /* Gold underline that grows in on scroll-reveal */
+    .rule-gold {
+        background: linear-gradient(90deg, var(--color-gold-400), var(--color-gold-400) 40%, transparent);
+    }
+
+    .mask-fade-x {
+        mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+        -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+    }
+}
+
+/* ---------------------------- keyframes ---------------------------- */
+
+@keyframes kenburns {
+    0% {
+        transform: scale(1.04) translate3d(0, 0, 0);
+    }
+    100% {
+        transform: scale(1.18) translate3d(-1.5%, -1.5%, 0);
+    }
+}
+
+@keyframes marquee {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes scroll-cue {
+    0% {
+        transform: translateY(-60%);
+        opacity: 0;
+    }
+    35% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(140%);
+        opacity: 0;
+    }
+}
+
+@keyframes soft-pulse {
+    0%,
+    100% {
+        opacity: 0.35;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.08);
+    }
+}
+
+.animate-kenburns {
+    animation: kenburns 14s var(--ease-out-expo) forwards;
+}
+
+.animate-marquee {
+    animation: marquee 38s linear infinite;
+}
+
+.animate-scroll-cue {
+    animation: scroll-cue 2.1s ease-in-out infinite;
+}
+
+.animate-soft-pulse {
+    animation: soft-pulse 6s ease-in-out infinite;
+}
+
+/* Custom scrollbar — subtle, matches the brand */
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: var(--color-cream-100);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--color-forest-700);
+    border-radius: 999px;
+    border: 3px solid var(--color-cream-100);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-forest-800);
+}
+
+/* ------------------------------------------------------------------
+   Entrance animations — CSS-driven on purpose.
+   Above-the-fold content must never depend on the JS animation loop
+   (nor on a composited layer) to become visible: mobile WebKit can
+   fail to paint such layers until a scroll forces a repaint.
+------------------------------------------------------------------- */
+
+@keyframes enter-up {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 22px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes enter-down {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -22px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes enter-fade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes draw-underline {
+    from {
+        stroke-dashoffset: 1;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.animate-enter-up {
+    animation: enter-up 0.7s var(--ease-out-expo) both;
+}
+
+.animate-enter-down {
+    animation: enter-down 0.6s var(--ease-out-expo) both;
+}
+
+.animate-enter-fade {
+    animation: enter-fade 0.6s ease-out both;
+}
+
+.animate-draw-underline {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw-underline 0.9s var(--ease-out-expo) 0.75s both;
+}
+
+/* Soft coloured glow without `filter: blur()` — a blurred layer of this
+   size is one of the heaviest things a phone GPU can be asked to hold. */
+.bloom-gold {
+    background: radial-gradient(circle closest-side, rgb(245 185 32 / 0.16), rgb(245 185 32 / 0.06) 55%, transparent 78%);
+}
+
+.bloom-forest {
+    background: radial-gradient(circle closest-side, rgb(47 125 95 / 0.2), rgb(47 125 95 / 0.07) 55%, transparent 78%);
+}
+
+.bloom-rose {
+    background: radial-gradient(circle closest-side, rgb(207 36 103 / 0.16), rgb(207 36 103 / 0.06) 55%, transparent 78%);
+}
+
+/* ------------------------------ admin ------------------------------ */
+
+@layer components {
+    .admin-input {
+        @apply block w-full rounded-lg border border-forest-200 bg-white px-3.5 py-2.5 text-sm text-forest-900 outline-none transition-colors placeholder:text-forest-800/35 focus:border-forest-500 focus:ring-2 focus:ring-forest-500/15;
+    }
+}
+
+@layer components {
+    .admin-icon-button {
+        @apply inline-flex h-9 w-9 items-center justify-center rounded-full border border-forest-200 text-forest-700 transition-colors hover:border-forest-500 hover:text-forest-900;
+    }
+}
+
+@layer components {
+    .public-input {
+        @apply block w-full rounded-lg border border-white/15 bg-forest-950/50 px-3 py-2 text-sm text-white outline-none transition-colors placeholder:text-cream-100/30 focus:border-gold-400/70;
+    }
+}
+
+.public-input option {
+    color: var(--color-forest-900);
+}
