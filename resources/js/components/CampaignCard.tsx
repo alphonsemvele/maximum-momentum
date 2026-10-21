@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
-import { ArrowUpRight, CalendarDays, MapPin } from 'lucide-react';
+import { ArrowUpRight, CalendarDays, HeartHandshake, MapPin } from 'lucide-react';
 import CampaignProgress from '@/components/CampaignProgress';
-import { campaignsCopy, domainLabels, type Campaign } from '@/lib/content';
+import { campaignsCopy, domainLabels, org, type Campaign } from '@/lib/content';
 import { formatDate } from '@/lib/format';
 import { useLanguage } from '@/lib/i18n';
 
@@ -9,13 +9,16 @@ const FALLBACK_IMAGE = '/images/gallery/outreach-team.webp';
 
 export default function CampaignCard({ campaign }: { campaign: Campaign }) {
     const { lang, t } = useLanguage();
+    const href = `/campagnes/${campaign.slug}`;
+    const title = t(campaign.title);
+    const donateMessage = t({
+        fr: `Bonjour Maximum Momentum in Action, je souhaite faire un don pour la campagne « ${title} ».`,
+        en: `Hello Maximum Momentum in Action, I would like to donate to the “${title}” campaign.`,
+    });
 
     return (
-        <Link
-            href={`/campagnes/${campaign.slug}`}
-            className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-forest-950 shadow-lift"
-        >
-            <div className="relative aspect-[16/10] overflow-hidden">
+        <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-forest-950 shadow-lift">
+            <Link href={href} className="relative block aspect-[16/10] overflow-hidden" tabIndex={-1} aria-hidden="true">
                 <img
                     src={campaign.image ?? FALLBACK_IMAGE}
                     alt=""
@@ -34,11 +37,13 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
                         </span>
                     )}
                 </div>
-            </div>
+            </Link>
 
             <div className="relative -mt-10 flex flex-1 flex-col p-7">
                 <h3 className="font-display text-[1.45rem] font-semibold leading-tight text-white text-balance">
-                    {t(campaign.title)}
+                    <Link href={href} className="transition-colors hover:text-gold-200">
+                        {title}
+                    </Link>
                 </h3>
 
                 {(campaign.location || campaign.startsAt) && (
@@ -66,11 +71,25 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
                     <CampaignProgress campaign={campaign} />
                 </div>
 
-                <span className="mt-6 inline-flex items-center gap-2 text-[0.8125rem] font-semibold text-gold-300">
-                    {t(campaignsCopy.details)}
-                    <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                </span>
+                <div className="mt-7 grid grid-cols-2 gap-3">
+                    <Link
+                        href={href}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-full border border-white/20 px-4 py-2.5 text-[0.8125rem] font-semibold text-white transition-colors hover:border-gold-400/60 hover:bg-white/5"
+                    >
+                        {t(campaignsCopy.details)}
+                        <ArrowUpRight className="h-4 w-4" />
+                    </Link>
+                    <a
+                        href={org.whatsapp(donateMessage)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gold-400 px-4 py-2.5 text-[0.8125rem] font-semibold text-forest-950 transition-colors hover:bg-gold-300"
+                    >
+                        <HeartHandshake className="h-4 w-4" />
+                        {t(campaignsCopy.donate)}
+                    </a>
+                </div>
             </div>
-        </Link>
+        </article>
     );
 }

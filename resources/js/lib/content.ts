@@ -392,6 +392,7 @@ export const campaignsCopy = {
     } satisfies Bi,
     featured: { fr: 'À la une', en: 'Featured' } satisfies Bi,
     details: { fr: 'Voir la campagne', en: 'View campaign' } satisfies Bi,
+    donate: { fr: 'Faire un don', en: 'Donate' } satisfies Bi,
     support: { fr: 'Soutenir cette campagne', en: 'Support this campaign' } satisfies Bi,
     raised: { fr: 'collectés', en: 'raised' } satisfies Bi,
     goal: { fr: 'Objectif', en: 'Goal' } satisfies Bi,
