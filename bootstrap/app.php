@@ -18,9 +18,6 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\TrackPageView::class,
         ]);
 
-        // Called by the CI pipeline with its own token, not from a browser form.
-        $middleware->validateCsrfTokens(except: ['_deploy']);
-
         $middleware->redirectGuestsTo(fn () => route('admin.login'));
         $middleware->redirectUsersTo(fn () => route('admin.dashboard'));
     })

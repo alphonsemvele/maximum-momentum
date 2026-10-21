@@ -1,14 +1,11 @@
 name: Deploy
 
-# Builds the app and uploads it by FTP to maximum.tasks-manage.com, then calls
-# the /_deploy hook so migrations and caches run on the server.
+# Builds the app and deploys it over SSH to maximum.tasks-manage.com:
+# rsync uploads only what changed, then scripts/remote-deploy.sh runs
+# migrations and rebuilds Laravel's caches on the server.
 #
-# Repository secrets (Settings → Secrets and variables → Actions):
-#   FTP_SERVER      FTP host of the hosting account
-#   FTP_USERNAME    e.g. momentum@tasks-manage.com
-#   FTP_PASSWORD
-#   FTP_SERVER_DIR  folder of the app, relative to the FTP account root, ending with "/" (e.g. maximum-momentum/)
-#   DEPLOY_TOKEN    same value as DEPLOY_TOKEN in the server's .env
+# One repository secret (Settings → Secrets and variables → Actions):
+#   SSH_PRIVATE_KEY   private key whose public half is authorised in the N0C panel (SSH → Keys)
 
 on:
   push:
@@ -19,6 +16,12 @@ concurrency:
   group: deploy-production
   cancel-in-progress: false
 
+env:
+  SSH_HOST: node32-ca.n0c.com
+  SSH_PORT: '5022'
+  SSH_USER: jgasauvc
+  APP_DIR: /home/jgasauvc/maximum-momentum
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -28,9 +31,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          # Full history: the deploy script diffs against the last deployed commit.
-          fetch-depth: 0
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -55,37 +55,59 @@ jobs:
       - name: Build assets
         run: npm run build
 
-      - name: Upload by FTP
+      - name: Configure SSH
         env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          sudo apt-get update -qq > /dev/null && sudo apt-get install -y -qq lftp > /dev/null
-          scripts/deploy-ftp.sh
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2> /dev/null
+          {
+            echo "Host production"
+            echo "  HostName $SSH_HOST"
+            echo "  Port $SSH_PORT"
+            echo "  User $SSH_USER"
+            echo "  IdentityFile ~/.ssh/deploy_key"
+            echo "  IdentitiesOnly yes"
+            echo "  ServerAliveInterval 30"
+          } > ~/.ssh/config
 
-      # Cached config/routes left on the server by an older release would hide
-      # the new routes (including /_deploy itself), so drop them first.
-      - name: Remove stale Laravel caches
-        env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
+      - name: Upload release
         run: |
-          lftp -u "$FTP_USERNAME,$FTP_PASSWORD" "ftp://$FTP_SERVER" -e "
-            set ftp:ssl-force true; set ftp:ssl-protect-data true;
-            cd \"${FTP_SERVER_DIR}bootstrap/cache\";
-            rm -f config.php routes-v7.php events.php;
-            bye"
+          git rev-parse HEAD > .deployed-commit
+          # Excluded paths are also protected from --delete: the server's .env,
+          # uploads in storage/, the public/storage link and Laravel's caches stay.
+          rsync -az --delete --stats \
+            --exclude='/.git/' \
+            --exclude='/.github/' \
+            --exclude='/node_modules/' \
+            --exclude='/resources/js/' \
+            --exclude='/resources/css/' \
+            --exclude='/tests/' \
+            --exclude='/.env' \
+            --exclude='/.env.*' \
+            --exclude='/storage/' \
+            --exclude='/bootstrap/cache/*.php' \
+            --exclude='/database/database.sqlite' \
+            --exclude='/public/storage' \
+            --exclude='/public/hot' \
+            --exclude='/public/images/WhatsApp*' \
+            --exclude='*.md' \
+            --exclude='/package.json' \
+            --exclude='/package-lock.json' \
+            --exclude='/tsconfig.json' \
+            --exclude='/vite.config.ts' \
+            --exclude='/phpunit.xml' \
+            ./ production:"$APP_DIR/"
 
-      - name: Run migrations and rebuild caches
-        env:
-          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+      - name: Migrate and rebuild caches
+        run: ssh production "bash $APP_DIR/scripts/remote-deploy.sh"
+
+      - name: Smoke test
         run: |
-          response=$(curl --silent --show-error --fail-with-body --max-time 120 \
-            -X POST -H "X-Deploy-Token: $DEPLOY_TOKEN" -H "Accept: application/json" \
-            https://maximum.tasks-manage.com/_deploy)
-          echo "$response"
-          echo "$response" | grep -q '"ok":true'
+          for path in / /admin/login; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "https://maximum.tasks-manage.com$path")
+            echo "$path → $code"
+            [ "$code" = "200" ]
+          done

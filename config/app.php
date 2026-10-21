@@ -99,18 +99,6 @@ return [
 
     'key' => env('APP_KEY'),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Deploy Token
-    |--------------------------------------------------------------------------
-    |
-    | Shared secret the CI pipeline sends to POST /_deploy to run migrations
-    | and rebuild caches after an FTP upload. Leave empty to disable the hook.
-    |
-    */
-
-    'deploy_token' => env('DEPLOY_TOKEN', ''),
-
     'previous_keys' => [
         ...array_filter(
             explode(',', (string) env('APP_PREVIOUS_KEYS', ''))

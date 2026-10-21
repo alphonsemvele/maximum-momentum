@@ -12,7 +12,6 @@ use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\DeployController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
@@ -20,7 +19,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('/campagnes/{slug}', [PageController::class, 'campaign'])->name('campaigns.show');
 Route::get('/documents/{document}', [DocumentController::class, 'show'])->name('documents.show');
-Route::post('/_deploy', DeployController::class)->middleware('throttle:5,1')->name('deploy');
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('guest')->group(function () {

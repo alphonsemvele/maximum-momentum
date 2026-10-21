@@ -16,7 +16,8 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // The repository is public: no default password lives in the code.
-        // Set ADMIN_EMAIL and ADMIN_PASSWORD in .env before the first seed.
+        // Set ADMIN_EMAIL and ADMIN_PASSWORD in .env before the first seed
+        // (the deploy pipeline seeds once, while the users table is empty).
         $email = env('ADMIN_EMAIL');
         $password = env('ADMIN_PASSWORD');
 
