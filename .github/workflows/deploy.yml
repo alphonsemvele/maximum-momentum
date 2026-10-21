@@ -21,6 +21,8 @@ env:
   SSH_PORT: '5022'
   SSH_USER: jgasauvc
   APP_DIR: /home/jgasauvc/maximum-momentum
+  # The domain's document root: its own index.php points at APP_DIR.
+  PUBLIC_DIR: /home/jgasauvc/maximum
 
 jobs:
   deploy:
@@ -85,8 +87,7 @@ jobs:
             --exclude='/resources/js/' \
             --exclude='/resources/css/' \
             --exclude='/tests/' \
-            --exclude='/.env' \
-            --exclude='/.env.*' \
+            --exclude='/.env*' \
             --exclude='/storage/' \
             --exclude='/bootstrap/cache/*.php' \
             --exclude='/database/database.sqlite' \
@@ -100,6 +101,22 @@ jobs:
             --exclude='/vite.config.ts' \
             --exclude='/phpunit.xml' \
             ./ production:"$APP_DIR/"
+
+      - name: Publish public assets to the document root
+        run: |
+          # The document root keeps its own index.php, .htaccess, SSL challenge
+          # folder and storage link; everything else mirrors public/.
+          rsync -az --stats \
+            --exclude='/index.php' \
+            --exclude='/.htaccess' \
+            --exclude='/.well-known/' \
+            --exclude='/storage' \
+            --exclude='/hot' \
+            --exclude='/build/' \
+            --exclude='/images/WhatsApp*' \
+            public/ production:"$PUBLIC_DIR/"
+          # Hashed bundles: drop the ones no longer referenced by the manifest.
+          rsync -az --delete --stats public/build/ production:"$PUBLIC_DIR/build/"
 
       - name: Migrate and rebuild caches
         run: ssh production "bash $APP_DIR/scripts/remote-deploy.sh"
